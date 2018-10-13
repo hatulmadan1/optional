@@ -16,7 +16,7 @@ void Vector::unique_checker() { //done
 }
 
 Vector::Vector() { //done
-	sizeOfObject = 1;
+	sizeOfObject = 0;
 	small = 0;
 }
 
@@ -30,12 +30,12 @@ size_t Vector::size() const { //done
 	return sizeOfObject;
 }
 
-bool Vector::isEmpty() const { //done
+bool Vector::empty() const { //done
 	return (sizeOfObject == 0);
 }
 
-void Vector::pushBack(uint32_t val) { //done
-	if (isEmpty()) {
+void Vector::push_back(uint32_t val) { //done
+	if (empty()) {
 		small = val;
 	} else {
 		if (isSmallObject()) {
@@ -49,7 +49,7 @@ void Vector::pushBack(uint32_t val) { //done
 	++sizeOfObject;
 }
 
-void Vector::popBack() {  //done
+void Vector::pop_back() {  //done
 	if (isSmallObject()) {
 		small = 0;
 	} else {

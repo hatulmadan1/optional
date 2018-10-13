@@ -21,11 +21,11 @@ public:
 
 	//informtion about size
 	size_t size() const; 
-	bool isEmpty() const;
+	bool empty() const;
 
 	//main functions
-	void pushBack(uint32_t val);
-	void popBack();
+	void push_back(uint32_t val);
+	void pop_back();
 	void resize(size_t num_of_elements);
 	void clear();
 

@@ -3,6 +3,7 @@
 
 #include "Vector.h"
 #include <functional>
+#include <vector>
 
 struct big_integer {
 private:

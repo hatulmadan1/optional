@@ -11,10 +11,10 @@ typedef uint64_t u64;
 
 const u32 big_integer::base = 32;
 const u32 big_integer::minus = (u32)1 << (base - 1);
-const u32 big_integer::minus_block = (u32)(((u64)(1 << base)) - 1);
+const u32 big_integer::minus_block = (u32)(((u64)(1ll << base)) - 1);
 
 bool big_integer::sign() const { //done
-	return !data.isEmpty() && (data[data.size() - 1] & minus);
+	return !data.empty() && (data[data.size() - 1] & minus);
 }
 
 bool big_integer::signAfterPop() const { //done
@@ -33,7 +33,7 @@ big_integer big_integer::mulLongShort(big_integer const& a, u32 const & b) { //d
 		ans = -ans;
 	}
 
-	ans.data.pushBack(0);
+	ans.data.push_back(0);
 	u32 carryFlag = 0;
 	for (size_t i = 0; i < ans.data.size(); ++i) {
 		u64 cur = (u64)ans.data[i] * b + carryFlag;
@@ -61,8 +61,8 @@ std::pair<big_integer, u32> divLongShort(big_integer const & a, u32 const & b) {
 }
 
 void big_integer::cleanEnd() { //done
-	while (!data.isEmpty() && data[data.size() - 1] == emptyBlock() && sign() == signAfterPop()) { //
-		data.popBack();
+	while (data.size() > 1 && data[data.size() - 1] == emptyBlock() && sign() == signAfterPop()) { //
+		data.pop_back();
 	}
 }
 
@@ -74,13 +74,13 @@ big_integer::big_integer(big_integer const & other) { //done
 }
 big_integer::big_integer(int a) { //done
 	data.clear();
-	data.pushBack((u32)a);
+	data.push_back((u32)a);
 }
 big_integer::big_integer(u32 a) { //done
 	data.clear();
-	data.pushBack((u32)a);
+	data.push_back((u32)a);
 	if (sign()) {
-		data.pushBack(0);
+		data.push_back(0);
 	}
 }
 big_integer::big_integer(std::string const & str) { //done
@@ -103,7 +103,7 @@ big_integer::big_integer(std::string const & str) { //done
 	tmp += (u32)cur;
 	*this = tmp;
 	if (sign()) {
-		data.pushBack(0);
+		data.push_back(0);
 	}
 	if (sgn) {
 		*this = -*this; 
@@ -260,7 +260,7 @@ big_integer & big_integer::operator<<=(int rhs) { //done
 	}
 	needToBeShifted = rhs - needToBeShifted * base;
 	if (needToBeShifted) { 
-		data.pushBack(emptyBlock());
+		data.push_back(emptyBlock());
 		for (size_t i = data.size(); i > 0; --i) {
 			if (i != data.size()) {
 				data[i] += data[i - 1] >> (base - needToBeShifted);
@@ -303,8 +303,8 @@ big_integer big_integer::operator-() const { //done
 }
 big_integer big_integer::operator~() const { //done
 	big_integer cur = *this;
-	if (cur.data.isEmpty()) {
-		cur.data.pushBack(0);
+	if (cur.data.empty()) {
+		cur.data.push_back(0);
 	}
 	for (size_t i = 0; i < cur.data.size(); ++i) {
 		cur.data[i] = ~cur.data[i];
