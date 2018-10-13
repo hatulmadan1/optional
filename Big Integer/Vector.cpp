@@ -38,7 +38,12 @@ void Vector::pushBack(uint32_t val) { //done
 	if (isEmpty()) {
 		small = val;
 	} else {
-		isSmallObject() ? new(&big) shared_ptr<vector<uint32_t>>(new vector<uint32_t>(1, small)) : unique_checker();
+		if (isSmallObject()) {
+			new(&big) shared_ptr<vector<uint32_t>>(new vector<uint32_t>(1, small));
+		}
+		else { 
+			unique_checker(); 
+		}
 		big->push_back(val);
 	}
 	++sizeOfObject;
