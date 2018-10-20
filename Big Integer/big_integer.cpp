@@ -158,7 +158,7 @@ big_integer & big_integer::operator*=(big_integer const & rhs) { //done
 	a = a.sign() ? -a : a;
 	b = b.sign() ? -b : b;
 	for (size_t i = 0; i < b.data.size(); ++i) {
-		ans += mulLongShort(a, b.data[i]) << (i * base);
+		ans += mulLongShort(a, b.data[i]) << ((u32)i * base);
 	}
 	ans = ansSign ? -ans : ans;
 	ans.cleanEnd();
@@ -187,7 +187,7 @@ big_integer & big_integer::operator/=(big_integer const & rhs) {
 	}
 	else {
 		u64 bnorm = b.data[b.data.size() - 1] > 0 ? b.data[b.data.size() - 1] : b.data[b.data.size() - 2];
-		u32 norm = (1ll << base) / (bnorm + 1);
+		u32 norm = (u32)((1ll << base) / (bnorm + 1));
 		res.data.resize(a.data.size() - b.data.size() + 1);
 
 		a = mulLongShort(a, norm);
