@@ -5,6 +5,8 @@
 #include <functional>
 #include <vector>
 
+using std::vector;
+
 struct big_integer {
 private:
 	Vector data;
@@ -29,6 +31,7 @@ public:
 	big_integer& operator-=(big_integer const& rhs); //done
 	big_integer& operator*=(big_integer const& rhs); //done
 	big_integer& operator/=(big_integer const& rhs);
+	uint64_t precalc(uint32_t a, uint32_t b, uint32_t c);
 	big_integer& operator%=(big_integer const& rhs); //done
 
 	big_integer& apply(big_integer const & rhs, 
@@ -60,6 +63,7 @@ public:
 	void cleanEnd(); //done
 	uint32_t emptyBlock() const; //done
 	big_integer mulLongShort(big_integer const& a, uint32_t const& b); //done
+	big_integer mulLongShort(big_integer const& a, uint64_t const& b); //done
 	friend std::pair<big_integer, uint32_t> divLongShort(big_integer const &a, uint32_t const &b);
 };
 

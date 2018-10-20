@@ -25,6 +25,16 @@ u32 big_integer::emptyBlock() const{ //done
 	return sign() ? (minus_block) : 0;
 }
 
+big_integer big_integer::mulLongShort(big_integer const & a, uint64_t const & b)
+{
+	u32 b1 = b >> base;
+	u32 b2 = b & ((1ll << base) - 1);
+	big_integer ans = mulLongShort(a, b1);
+	ans <<= base;
+	ans += mulLongShort(a, b2);
+	return ans;
+}
+
 big_integer big_integer::mulLongShort(big_integer const& a, u32 const & b) { //done	
 	big_integer ans = a;
 
@@ -67,6 +77,7 @@ void big_integer::cleanEnd() { //done
 }
 
 big_integer::big_integer() { //done
+	//data = vector<u32>(1, 0);
 	data = Vector();
 }
 big_integer::big_integer(big_integer const & other) { //done
@@ -153,6 +164,8 @@ big_integer & big_integer::operator*=(big_integer const & rhs) { //done
 	ans.cleanEnd();
 	return *this = ans;
 }
+
+
 big_integer & big_integer::operator/=(big_integer const & rhs) {
 	big_integer res, tmp;
 	big_integer a = *this, b = rhs;
@@ -164,32 +177,97 @@ big_integer & big_integer::operator/=(big_integer const & rhs) {
 	if (a < b) {
 		return *this = 0;
 	}
+
+	if (a == b) {
+		return *this = 1;
+	}
+	
 	if (b.data.size() == 1) {
 		res = divLongShort(a, b.data[0]).first;
 	}
 	else {
-		for (size_t i = a.data.size() - 1; i >= 0; --i) {
-			tmp <<= base;
-			tmp += a.data[i];
-			u32 x = 0;
-			u64 l = 0, r = (u64)1 << base;
-			while (l <= r) {
-				u64 m = (l + r) >> 1;
-				if (mulLongShort(b, m) <= tmp) {
-					x = m;
-					l = m + 1;
-				}
-				else r = m - 1;
+		u64 bnorm = b.data[b.data.size() - 1] > 0 ? b.data[b.data.size() - 1] : b.data[b.data.size() - 2];
+		u32 norm = (1ll << base) / (bnorm + 1);
+		res.data.resize(a.data.size() - b.data.size() + 1);
+
+		a = mulLongShort(a, norm);
+		b = mulLongShort(b, norm);
+		
+		size_t m = b.data.size() + 1;
+		size_t aSize = a.data.size();
+		size_t bSize = b.data.size();
+		if (b.data[b.data.size() - 1] == 0) {
+			--m;
+			--bSize;
+		}
+		if (a.data[a.data.size() - 1] == 0) {
+			++m;
+			--aSize;
+		}
+		big_integer firstMFromA;
+		firstMFromA.data.resize(m);
+		size_t aPointer = a.data.size() - 1;
+		for (size_t i = 1; i < m; i++) {
+			firstMFromA.data[m - i] = a.data[aPointer--];
+		}
+
+		for (size_t k = aSize - bSize - 1; k >= 0; --k) {
+			firstMFromA += a.data[aPointer];
+			if (aPointer) --aPointer;
+
+			u32 aPrec1, aPrec2;
+			if (firstMFromA.data[firstMFromA.data.size() - 1] == 0 && 
+				firstMFromA.signAfterPop() != firstMFromA.sign()) {
+				aPrec1 = firstMFromA.data[firstMFromA.data.size() - 2];
+				aPrec2 = firstMFromA.data[firstMFromA.data.size() - 3];
 			}
-			res <<= base;
-			res += x;
-			tmp -= mulLongShort(b, x);
-			if (i == 0) break;
+			else {
+				aPrec1 = firstMFromA.data[firstMFromA.data.size() - 1];
+				aPrec2 = firstMFromA.data[firstMFromA.data.size() - 2];
+			}
+			u32 bPrec = b.data[b.data.size() - 1] == 0 ? b.data[b.data.size() - 2] : b.data[b.data.size() - 1];
+			u64 y = precalc(aPrec1, aPrec2, bPrec);
+			u32 carry = y >> base;
+			
+			if (carry) {
+				if (k == res.data.size() - 1) {
+					res.data.push_back(carry);
+				}
+				else {
+					res.data[k + 1] += carry;
+				}
+			}
+
+			if (firstMFromA.sign()) {
+				firstMFromA.data.push_back(0);
+			}
+			big_integer ppp = mulLongShort(b, y);
+
+			while (ppp > firstMFromA) {
+				--y;
+				ppp = mulLongShort(b, y);
+			}
+
+			firstMFromA -= ppp;
+			res.data[k] = y & ((1ll << base) - 1);
+			firstMFromA <<= base;
+			
+			if (k == 0) break;
+		}
+		
+		if (res.sign()) {
+			res.data.push_back(0);
 		}
 	}
-	res.cleanEnd();
 	res = ansSign ? -res : res;
+	res.cleanEnd();
 	return *this = res;
+}
+
+uint64_t big_integer::precalc(uint32_t a, uint32_t b, uint32_t c) {
+	u64 ab = ((u64)a << big_integer::base) + b;
+	u64 res = ab / c;
+	return res;
 }
 big_integer & big_integer::operator%=(big_integer const & rhs) { //done
 	return *this -= (*this / rhs) * rhs;

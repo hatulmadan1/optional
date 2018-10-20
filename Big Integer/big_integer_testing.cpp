@@ -675,6 +675,14 @@ namespace
 		T b = extract_random_element(v);
 
 		T ab = a * b;
+
+		if (a * b / a != b) {
+			std::cout << a << std::endl << b << std::endl;
+		}
+		if (a * b / b != a) {
+			std::cout << a << std::endl << b << std::endl;
+		}
+
 		ASSERT_TRUE(ab / a == b);
 		ASSERT_TRUE(ab / b == a);
 
@@ -704,9 +712,11 @@ TEST(correctness, mul_merge_randomized)
 		big_integer a = merge_all(x);
 		big_integer b = merge_all(x);
 
+
 		EXPECT_TRUE(a == b);
 	}
 }
+
 
 namespace
 {
@@ -730,8 +740,15 @@ TEST(correctness, div_randomized)
 	{
 		big_integer divident = rand_big(10);
 		big_integer divisor = rand_big(6);
+		//std::cout << divident << std::endl << divisor << std::endl << std::endl;
 		big_integer quotient = divident / divisor;
 		big_integer residue = divident % divisor;
+
+		if (residue >= divisor) {
+			std::cout << divident << std::endl << divisor << std::endl;
+			system("pause");
+		}
+
 		ASSERT_EQ(divident - quotient * divisor, residue);
 		EXPECT_GE(residue, 0);
 		EXPECT_LT(residue, divisor);
