@@ -1,3 +1,4 @@
+
 #ifndef OPTIONAL_H
 #define OPTIONAL_H
 
@@ -63,9 +64,9 @@ public:
 	}
 
 	void swap(optional &other) {
-		optional temp = *this;
-		*this = other;
-		other = temp;
+		optional temp = other;
+		other = *this;
+		*this = temp;
 	}
 
 };
@@ -96,12 +97,16 @@ inline optional<T>::~optional() { //done
 
 template<typename T>
 inline optional<T> &optional<T>::operator=(optional<T> const &other) { //done
-	if (this == &other) { return *this; }
-	clear();
-	if (other.containsSmth) {
-		new (data) T(*other);
+	if (containsSmth && other.containsSmth) {
+		(T &)(data) = *other;
 	}
-	this->containsSmth = other.containsSmth;
+	else if (containsSmth && !other.containsSmth) {
+		clear();
+	}
+	else if (!containsSmth && other.containsSmth) {
+		new (data) T(*other);
+		containsSmth = true;
+	}
 	return *this;
 }
 
@@ -146,4 +151,3 @@ void swap(optional<T> &a, optional<T> &b) {
 }
 
 #endif // !OPTIONAL_H
-
